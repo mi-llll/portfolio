@@ -1,0 +1,1053 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>振り返りツール｜学生用</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <style>
+    :root {
+      --text-main: #111827;
+      --text-sub: #6b7280;
+      --blue: #2563eb;
+      --purple: #7c3aed;
+      --border: #e5e7eb;
+      --bg: #f6f8fb;
+      --card: #ffffff;
+      --shadow: 0 14px 30px rgba(15, 23, 42, 0.08);
+
+      --chat-bg: #f3f4f6;
+      --bubble-ai: #ffffff;
+      --bubble-user: #d1fae5;
+      --bubble-ai-border: #e5e7eb;
+      --bubble-user-border: #a7f3d0;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      min-height: 100vh;
+      font-family:
+        system-ui,
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        sans-serif;
+      background: var(--bg);
+      color: var(--text-main);
+    }
+
+    .sticky-header {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+
+      background: rgba(255, 255, 255, 0.75);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid rgba(229, 231, 235, 0.7);
+    }
+
+    .header-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 16px 18px;
+
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+    }
+
+    .header-center {
+      flex: 1;
+      text-align: center;
+    }
+
+    .header-title {
+      font-size: 20px;
+      font-weight: 800;
+    }
+
+    .header-sub {
+      margin-top: 4px;
+      color: var(--text-sub);
+      font-size: 12px;
+    }
+
+    .header-right {
+      min-width: 120px;
+
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 14px;
+    }
+
+    .back-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+
+      padding: 10px 18px;
+
+      border: 1px solid var(--border);
+      border-radius: 999px;
+
+      background: #ffffff;
+      color: #111827;
+
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.12);
+      transition:
+        transform 0.15s,
+        box-shadow 0.15s;
+    }
+
+    .back-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 12px 30px rgba(15, 23, 42, 0.16);
+    }
+
+    .back-btn:active {
+      transform: translateY(0);
+      box-shadow: 0 6px 16px rgba(15, 23, 42, 0.14);
+    }
+
+    .summary-btn {
+      padding: 10px 18px;
+
+      border: none;
+      border-radius: 999px;
+
+      background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+      color: #ffffff;
+
+      font-weight: 700;
+      cursor: pointer;
+
+      box-shadow: 0 10px 24px rgba(124, 58, 237, 0.25);
+    }
+
+    main {
+      max-width: 1200px;
+      margin: 12px auto;
+      padding: 0 22px;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 160px 1fr;
+      align-items: start;
+      gap: 22px;
+    }
+
+    .sidebar {
+      position: sticky;
+      top: 92px;
+
+      height: calc(100vh - 200px);
+      min-height: 100%;
+      padding: 14px;
+
+      display: flex;
+      flex-direction: column;
+
+      background: #ffffff;
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      box-shadow: var(--shadow);
+    }
+
+    .sidebar-title {
+      flex: 0 0 auto;
+      margin: 2px 6px 10px;
+
+      color: var(--text-sub);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+    }
+
+    .session-list {
+      flex: 1 1 auto;
+
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+
+      overflow-y: auto;
+      padding-right: 6px;
+    }
+
+    .session-list::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    .session-list::-webkit-scrollbar-thumb {
+      background: #e5e7eb;
+      border-radius: 999px;
+    }
+
+    .session-btn {
+      width: 100%;
+      height: 56px;
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      border: 1px solid var(--border);
+      border-radius: 14px;
+
+      background: #f3f4f6;
+      color: #374151;
+
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    .session-btn.active {
+      border: none;
+      background: linear-gradient(135deg, #60a5fa, #8b5cf6);
+      color: #ffffff;
+      box-shadow: 0 12px 26px rgba(124, 58, 237, 0.22);
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 28px;
+    }
+
+    .card {
+      padding: 22px;
+
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      box-shadow: var(--shadow);
+    }
+
+    .card-title {
+      margin-bottom: 16px;
+
+      display: flex;
+      align-items: center;
+      gap: 10px;
+
+      font-size: 20px;
+      font-weight: 800;
+    }
+
+    .icon {
+      width: 36px;
+      height: 36px;
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      background: #e0ecff;
+      border-radius: 12px;
+    }
+
+    .session-badge {
+      margin-left: 8px;
+      padding: 6px 10px;
+
+      border: 1px solid var(--border);
+      border-radius: 999px;
+
+      background: #f3f4f6;
+      color: #374151;
+
+      font-size: 12px;
+      font-weight: 900;
+    }
+
+    .q {
+      margin-bottom: 24px;
+    }
+
+    .q-label {
+      margin-bottom: 8px;
+
+      display: flex;
+      align-items: center;
+      gap: 10px;
+
+      font-weight: 800;
+    }
+
+    .q-tag {
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 900;
+    }
+
+    .q1 {
+      background: #dbeafe;
+      color: #1d4ed8;
+    }
+
+    .q2 {
+      background: #ede9fe;
+      color: #6d28d9;
+    }
+
+    .q3 {
+      background: #fef3c7;
+      color: #92400e;
+    }
+
+    textarea {
+      width: 100%;
+      height: 65px;
+      min-height: 6px;
+      padding: 11px;
+
+      border: 1px solid var(--border);
+      border-radius: 12px;
+
+      font-size: 14px;
+      resize: none;
+    }
+
+    .send-btn {
+      width: 100%;
+      padding: 14px;
+
+      border: none;
+      border-radius: 14px;
+
+      background: #d1d5db;
+      color: #ffffff;
+
+      font-weight: 900;
+      cursor: pointer;
+    }
+
+    .send-btn.enabled {
+      background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+      box-shadow: 0 10px 24px rgba(124, 58, 237, 0.2);
+    }
+
+    .send-btn:disabled {
+      opacity: 0.75;
+      cursor: not-allowed;
+    }
+
+    .chat-card {
+      padding: 0;
+      overflow: hidden;
+    }
+
+    .chat-head {
+      padding: 16px 18px;
+
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .chat-title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+
+      font-weight: 900;
+    }
+
+    .chat-badge {
+      padding: 6px 10px;
+
+      border: 1px solid var(--border);
+      border-radius: 999px;
+
+      background: #f3f4f6;
+      color: #374151;
+
+      font-size: 12px;
+      font-weight: 900;
+    }
+
+    .chat-body {
+      height: 400px;
+      padding: 16px 14px;
+
+      background: var(--chat-bg);
+      overflow-y: auto;
+    }
+
+    .msg-row {
+      margin: 10px 0;
+
+      display: flex;
+      align-items: flex-end;
+      gap: 10px;
+    }
+
+    .msg-row.ai {
+      justify-content: flex-start;
+    }
+
+    .msg-row.user {
+      justify-content: flex-end;
+    }
+
+    .avatar {
+      width: 34px;
+      height: 34px;
+      flex: 0 0 auto;
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      background: #e5e7eb;
+      border-radius: 50%;
+      font-size: 16px;
+    }
+
+    .bubble {
+      max-width: 78%;
+      padding: 12px 14px;
+
+      border-radius: 16px;
+
+      font-size: 14px;
+      line-height: 1.5;
+      white-space: pre-wrap;
+      word-break: break-word;
+
+      box-shadow: 0 8px 18px rgba(15, 23, 42, 0.06);
+    }
+
+    .bubble.ai {
+      background: var(--bubble-ai);
+      border: 1px solid var(--bubble-ai-border);
+      border-top-left-radius: 6px;
+    }
+
+    .bubble.user {
+      background: var(--bubble-user);
+      border: 1px solid var(--bubble-user-border);
+      border-top-right-radius: 6px;
+    }
+
+    .chat-foot {
+      padding: 12px;
+
+      display: flex;
+      align-items: flex-end;
+      gap: 10px;
+
+      background: #ffffff;
+      border-top: 1px solid var(--border);
+    }
+
+    .chat-input {
+      flex: 1;
+      min-height: 44px;
+      max-height: 120px;
+      padding: 10px 12px;
+
+      border: 1px solid var(--border);
+      border-radius: 14px;
+
+      font-size: 14px;
+      resize: none;
+      outline: none;
+    }
+
+    .chat-send {
+      height: 44px;
+      padding: 0 16px;
+
+      border: none;
+      border-radius: 14px;
+
+      background: linear-gradient(135deg, #10b981, #34d399);
+      color: #ffffff;
+
+      font-weight: 900;
+      cursor: pointer;
+
+      box-shadow: 0 10px 22px rgba(16, 185, 129, 0.2);
+    }
+
+    .chat-send:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+
+    .chat-hint {
+      padding: 10px 18px 0;
+
+      background: #ffffff;
+      color: var(--text-sub);
+
+      font-size: 12px;
+    }
+
+    @media (max-width: 980px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+
+      .sidebar {
+        position: relative;
+        top: 0;
+
+        height: auto;
+        padding: 12px;
+      }
+
+      .session-list {
+        flex-direction: row;
+        overflow: auto;
+        padding-bottom: 4px;
+      }
+
+      .session-btn {
+        min-width: 92px;
+        height: 44px;
+      }
+    }
+
+    @media (max-width: 900px) {
+      .grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <header class="sticky-header">
+    <div class="header-inner">
+      <div class="header-left">
+        <button class="back-btn" id="backBtn">← 戻る</button>
+      </div>
+
+      <div class="header-center">
+        <div class="header-title">振り返りツール</div>
+        <div class="header-sub">
+          AI学習コーチと一緒に、授業を振り返りましょう
+        </div>
+      </div>
+
+      <div class="header-right">
+        <button class="summary-btn" id="summaryBtn">📊 まとめを見る</button>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <div class="layout">
+      <aside class="sidebar" aria-label="振り返り回数">
+        <div class="sidebar-title">回数</div>
+        <div class="session-list" id="sessionList"></div>
+      </aside>
+
+      <section>
+        <div class="grid">
+          <div class="card">
+            <div class="card-title">
+              <div class="icon">📝</div>
+              <div>
+                今日の授業の振り返り
+                <span class="session-badge" id="sessionBadge">1回目</span>
+              </div>
+            </div>
+
+            <div class="q">
+              <div class="q-label">
+                <span class="q-tag q1">Q1</span>
+                <span id="qText1">印象に残ったことは？</span>
+              </div>
+              <textarea id="q1"></textarea>
+            </div>
+
+            <div class="q">
+              <div class="q-label">
+                <span class="q-tag q1">Q2</span>
+                <span id="qText2">グループでの関わり方はどうでしたか？</span>
+              </div>
+              <textarea id="q2"></textarea>
+            </div>
+
+            <div class="q">
+              <div class="q-label">
+                <span class="q-tag q1">Q3</span>
+                <span id="qText3">次回意識したいことは？</span>
+              </div>
+              <textarea id="q3"></textarea>
+            </div>
+
+            <button class="send-btn" id="sendBtn" type="button">
+              ✈︎ AIコーチに送って、最初の質問をもらう
+            </button>
+          </div>
+
+          <div class="card chat-card">
+            <div class="chat-head">
+              <div class="chat-title">
+                <span style="font-size:18px">🤖</span>
+                <span>AIコーチ</span>
+                <span class="chat-badge" id="chatStatus">未開始</span>
+              </div>
+
+              <button
+                class="summary-btn"
+                id="toSummaryMini"
+                style="padding:8px 12px; font-weight:800;"
+              >
+                まとめを保存
+              </button>
+            </div>
+
+            <div class="chat-hint" id="chatHint">
+              左の振り返りを送信すると、ここで対話が始まります
+            </div>
+
+            <div class="chat-body" id="chatBody"></div>
+
+            <div class="chat-foot">
+              <textarea
+                class="chat-input"
+                id="chatInput"
+                placeholder="ここに回答を入力…"
+                disabled
+              ></textarea>
+              <button class="chat-send" id="chatSend" disabled>送信</button>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <script>
+    const TOTAL_SESSIONS = 13;
+
+    const sendBtn = document.getElementById("sendBtn");
+    const q1 = document.getElementById("q1");
+    const q2 = document.getElementById("q2");
+    const q3 = document.getElementById("q3");
+
+    const chatBody = document.getElementById("chatBody");
+    const chatInput = document.getElementById("chatInput");
+    const chatSend = document.getElementById("chatSend");
+    const chatStatus = document.getElementById("chatStatus");
+    const chatHint = document.getElementById("chatHint");
+
+    let reflectionSaved = null;
+    let historyMessages = [];
+
+    function isDeepDiveRound(current) {
+      const arr = JSON.parse(localStorage.getItem("deepDiveRounds") || "[]");
+      return arr.includes(Number(current));
+    }
+
+    function applyCoachUIForSession(session) {
+      const deep = isDeepDiveRound(session);
+
+      chatBody.innerHTML = "";
+      chatHint.style.display = "block";
+      chatStatus.textContent = deep ? "未開始" : "まとめ";
+      reflectionSaved = null;
+      historyMessages = [];
+      chatInput.value = "";
+
+      const chatFoot = document.querySelector(".chat-foot");
+      if (chatFoot) {
+        chatFoot.style.display = deep ? "flex" : "none";
+      }
+
+      sendBtn.textContent = deep
+        ? "✈︎ AIコーチに送って、最初の質問をもらう"
+        : "✈︎ AIに送って、まとめを生成する";
+
+      setChatEnabled(false);
+    }
+
+    function applyConfirmedQuestions() {
+      const c1 = (localStorage.getItem("confirmedQ1") || "").trim();
+      const c2 = (localStorage.getItem("confirmedQ2") || "").trim();
+      const c3 = (localStorage.getItem("confirmedQ3") || "").trim();
+
+      const qText1 = document.getElementById("qText1");
+      const qText2 = document.getElementById("qText2");
+      const qText3 = document.getElementById("qText3");
+
+      if (c1 && qText1) qText1.textContent = c1;
+      if (c2 && qText2) qText2.textContent = c2;
+      if (c3 && qText3) qText3.textContent = c3;
+    }
+
+    applyConfirmedQuestions();
+
+    document.getElementById("backBtn").onclick = () => history.back();
+
+    function getSessionFromURL() {
+      const params = new URLSearchParams(location.search);
+      const v = parseInt(params.get("session"), 10);
+
+      if (!Number.isNaN(v) && v >= 1 && v <= TOTAL_SESSIONS) {
+        return v;
+      }
+
+      return null;
+    }
+
+    function getCurrentSession() {
+      const urlSession = getSessionFromURL();
+      if (urlSession) return urlSession;
+
+      const stored = parseInt(localStorage.getItem("reflection_session"), 10);
+
+      if (
+        !Number.isNaN(stored) &&
+        stored >= 1 &&
+        stored <= TOTAL_SESSIONS
+      ) {
+        return stored;
+      }
+
+      return 1;
+    }
+
+    function setCurrentSession(n) {
+      localStorage.setItem("reflection_session", String(n));
+
+      const params = new URLSearchParams(location.search);
+      params.set("session", String(n));
+
+      history.replaceState(
+        null,
+        "",
+        `${location.pathname}?${params.toString()}`
+      );
+    }
+
+    function goSummary() {
+      const n = getCurrentSession();
+      location.href = `summary.html?session=${n}`;
+    }
+
+    document.getElementById("summaryBtn").onclick = goSummary;
+
+    document.getElementById("toSummaryMini").onclick = () => {
+      const n = getCurrentSession();
+
+      const insight = (localStorage.getItem(`insight_${n}`) || "").trim();
+      const understanding = (
+        localStorage.getItem(`understanding_${n}`) || ""
+      ).trim();
+      const growth = (localStorage.getItem(`growth_${n}`) || "").trim();
+      const reason = (localStorage.getItem(`reason_${n}`) || "").trim();
+
+      if (!insight && !understanding && !growth && !reason) {
+        alert("保存できるまとめがまだありません（先にAIまとめを生成してください）");
+        return;
+      }
+
+      alert(`${n}回目のまとめを保存しました`);
+      location.href = `summary.html?session=${n}`;
+    };
+
+    function renderSessionUI(current) {
+      const list = document.getElementById("sessionList");
+      list.innerHTML = "";
+
+      for (let i = 1; i <= TOTAL_SESSIONS; i++) {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "session-btn" + (i === current ? " active" : "");
+        btn.textContent = `${i}回目`;
+
+        btn.onclick = () => {
+          setCurrentSession(i);
+          renderSessionUI(i);
+          document.getElementById("sessionBadge").textContent = `${i}回目`;
+          applyCoachUIForSession(i);
+        };
+
+        list.appendChild(btn);
+      }
+
+      document.getElementById("sessionBadge").textContent = `${current}回目`;
+    }
+
+    const currentSession = getCurrentSession();
+    setCurrentSession(currentSession);
+    renderSessionUI(currentSession);
+
+    function scrollChatToBottom() {
+      chatBody.scrollTop = chatBody.scrollHeight;
+    }
+
+    function addBubble(role, text) {
+      const row = document.createElement("div");
+      row.className = "msg-row " + (role === "assistant" ? "ai" : "user");
+
+      if (role === "assistant") {
+        const avatar = document.createElement("div");
+        avatar.className = "avatar";
+        avatar.textContent = "🤖";
+        row.appendChild(avatar);
+      }
+
+      const bubble = document.createElement("div");
+      bubble.className = "bubble " + (role === "assistant" ? "ai" : "user");
+      bubble.textContent = text;
+
+      row.appendChild(bubble);
+
+      if (role === "user") {
+        const avatar = document.createElement("div");
+        avatar.className = "avatar";
+        avatar.textContent = "🙂";
+        row.appendChild(avatar);
+      }
+
+      chatBody.appendChild(row);
+      scrollChatToBottom();
+    }
+
+    function extractSummaryFields(text) {
+      const src = String(text || "").replace(/\r/g, "");
+
+      const getPart = (label, nextLabels) => {
+        const escaped = label.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+        const next = nextLabels
+          .map((v) => v.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"))
+          .join("|");
+
+        const re = new RegExp(
+          `(?:^|\\n)\\s*・?${escaped}\\s*[:：]\\s*([\\s\\S]*?)(?=\\n\\s*・?(?:${next})\\s*[:：]|$)`,
+          "m"
+        );
+
+        const m = src.match(re);
+        return m ? m[1].trim() : "";
+      };
+
+      return {
+        insight: getPart("今日一番の気づき（Why・How の説明つき）", [
+          "自分の理解の変化",
+          "前回からの変化成長",
+          "その成長が起きた理由"
+        ]),
+        understanding: getPart("自分の理解の変化", [
+          "前回からの変化成長",
+          "その成長が起きた理由"
+        ]),
+        growth: getPart("前回からの変化成長", [
+          "その成長が起きた理由"
+        ]),
+        reason: getPart("その成長が起きた理由", [])
+      };
+    }
+
+    async function callCoachAPI() {
+      const current = getCurrentSession();
+      const mode = isDeepDiveRound(current) ? "coach" : "summary";
+
+      const res = await fetch("http://localhost:3000/api/gemini-coach", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          reflection: reflectionSaved,
+          history: historyMessages,
+          mode
+        })
+      });
+
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err?.detail || "API error");
+      }
+
+      return await res.json();
+    }
+
+    function setChatEnabled(enabled) {
+      chatInput.disabled = !enabled;
+      chatSend.disabled = !enabled;
+
+      if (enabled) {
+        chatInput.focus();
+      }
+    }
+
+    function updateSendBtnState() {
+      const ok = q1.value.trim() && q2.value.trim() && q3.value.trim();
+      sendBtn.classList.toggle("enabled", !!ok);
+    }
+
+    q1.addEventListener("input", updateSendBtnState);
+    q2.addEventListener("input", updateSendBtnState);
+    q3.addEventListener("input", updateSendBtnState);
+    updateSendBtnState();
+
+    sendBtn.onclick = async () => {
+      const reflection = {
+        q1: q1.value.trim(),
+        q2: q2.value.trim(),
+        q3: q3.value.trim()
+      };
+
+      if (!reflection.q1 || !reflection.q2 || !reflection.q3) {
+        alert("すべての振り返りを入力してください");
+        return;
+      }
+
+      reflectionSaved = reflection;
+      historyMessages = [];
+
+      sendBtn.disabled = true;
+      sendBtn.textContent = "送信中...";
+      chatStatus.textContent = "開始中…";
+
+      try {
+        chatHint.style.display = "none";
+
+        const data = await callCoachAPI();
+        const n = getCurrentSession();
+
+        if (data) {
+          const fullText = (data.message || "").trim();
+
+          localStorage.setItem(`insight_${n}`, fullText);
+          localStorage.setItem(`understanding_${n}`, "");
+          localStorage.setItem(`growth_${n}`, "");
+          localStorage.setItem(`reason_${n}`, "");
+        }
+
+        if (!isDeepDiveRound(n)) {
+          if (data.message) addBubble("assistant", data.message);
+
+          chatStatus.textContent = "まとめ生成済み";
+          setChatEnabled(false);
+          sendBtn.disabled = false;
+          sendBtn.textContent = "✈︎ AIに送って、まとめを生成する";
+          return;
+        }
+
+        if (data && data.done) {
+          chatStatus.textContent = "まとめ生成済み";
+          setChatEnabled(false);
+        }
+
+        historyMessages.push({
+          role: "assistant",
+          content: data.message
+        });
+
+        addBubble("assistant", data.message);
+        chatStatus.textContent = "対話中";
+        setChatEnabled(true);
+      } catch (e) {
+        console.error(e);
+        alert("AIとの通信に失敗しました（サーバーが起動しているか確認してください）");
+        chatStatus.textContent = "未開始";
+
+        sendBtn.disabled = false;
+        updateSendBtnState();
+      }
+
+      sendBtn.textContent = isDeepDiveRound(getCurrentSession())
+        ? "✈︎ AIコーチに送って、最初の質問をもらう"
+        : "✈︎ AIに送って、まとめを生成する";
+    };
+
+    async function sendChat() {
+      const text = chatInput.value.trim();
+      if (!text) return;
+
+      addBubble("user", text);
+      historyMessages.push({
+        role: "user",
+        content: text
+      });
+
+      chatInput.value = "";
+      chatSend.disabled = true;
+      chatSend.textContent = "…";
+
+      try {
+        const data = await callCoachAPI();
+
+        historyMessages.push({
+          role: "assistant",
+          content: data.message
+        });
+
+        addBubble("assistant", data.message);
+
+        const n = getCurrentSession();
+
+        if (data) {
+          const fullText = (data.message || "").trim();
+
+          localStorage.setItem(`insight_${n}`, fullText);
+          localStorage.setItem(`understanding_${n}`, "");
+          localStorage.setItem(`growth_${n}`, "");
+          localStorage.setItem(`reason_${n}`, "");
+        }
+
+        const assistantTurns = historyMessages.filter(
+          (h) => h.role === "assistant"
+        ).length;
+
+        if (assistantTurns >= 6) {
+          chatStatus.textContent = "シート生成";
+        }
+      } catch (e) {
+        console.error(e);
+        addBubble(
+          "assistant",
+          "通信に失敗しました。サーバーが起動しているか確認してください。"
+        );
+      } finally {
+        chatSend.disabled = false;
+        chatSend.textContent = "送信";
+        chatInput.focus();
+      }
+    }
+
+    chatSend.onclick = sendChat;
+
+    chatInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" && !e.shiftKey) {
+        e.preventDefault();
+
+        if (!chatSend.disabled) {
+          sendChat();
+        }
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>楽曲検索アプリ</title>
+
+  <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+  <div class="glass-background"></div>
+
+  <div class="content">
+    <h2>楽曲検索アプリ</h2>
+
+    <button id="record-button">録音開始</button>
+
+    <p id="status">準備完了</p>
+    <p id="result">ここに結果が表示されます</p>
+
+    <img id="album-cover" src="" alt="Album Cover">
+
+    <ul id="tracklist"></ul>
+
+    <div class="playback-container">
+      <h3>現在の曲を再生:</h3>
+      <iframe
+        id="spotify-player"
+        class="spotify-player"
+        frameborder="0"
+        allow="encrypted-media"
+      ></iframe>
+    </div>
+
+    <canvas id="visualizer" width="600" height="100"></canvas>
+  </div>
+
+  <script src="js/app.js"></script>
+</body>
+</html>
